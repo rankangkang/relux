@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "pnpm -F '@cmkk/relux' run build",
-    "release": "pnpm -F '@cmkk/relux' publish",
+    "release": "pnpm -F '@cmkk/relux' publish --access public",
     "start": "pnpm -F example run dev"
   },
   "devDependencies": {
