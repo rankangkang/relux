@@ -1,0 +1,25 @@
+{
+  "name": "@cmkk/relux-monorepo",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "lib",
+      "examples/*"
+    ]
+  },
+  "scripts": {
+    "build": "pnpm -F '@cmkk/relux' run build",
+    "release": "pnpm -F '@cmkk/relux' publish",
+    "start": "pnpm -F example run dev"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.9",
+    "@vitejs/plugin-react": "^4.0.3",
+    "json": "^11.0.0",
+    "prettier": "2.5.1",
+    "pretty-quick": "3.1.3",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.5.1"
+  }
+}
