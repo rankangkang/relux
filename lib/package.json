@@ -1,6 +1,6 @@
 {
   "name": "@cmkk/relux",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "simple react state-management lib, inspired by zustand.",
   "scripts": {
     "dev": "vite",

@@ -1,15 +1,17 @@
-export type Usubscribe = () => void
+export type Unsubscribe = () => void
+export type Listener<T> = (state: T, prevState: T) => void
+export type Subscribe<T> = (listener: Listener<T>) => Unsubscribe
 export type PartialState<T> = ((state: T) => Partial<T>) | Partial<T>
 
-export interface AbstractObservableStore<T, L extends () => void = () => void> {
-  subscribe(l: L): Usubscribe
+export interface AbstractObservableStore<T> {
+  subscribe: Subscribe<T>
   getState(): T
   setState(partial: PartialState<T>): void
 }
 
-export class ObservableStore<T, L extends () => void = () => void> implements AbstractObservableStore<T> {
+export class ObservableStore<T> implements AbstractObservableStore<T> {
   state?: T
-  listeners: Set<L>
+  listeners: Set<Listener<T>>
 
   constructor(initialState?: T) {
     this.listeners = new Set()
@@ -17,7 +19,7 @@ export class ObservableStore<T, L extends () => void = () => void> implements Ab
   }
 
   // 订阅，注册到 useSyncExternalStore 后由 react 调用。
-  subscribe(listener: L) {
+  subscribe(listener: Listener<T>) {
     this.listeners.add(listener)
 
     // unsubscribe
@@ -38,12 +40,12 @@ export class ObservableStore<T, L extends () => void = () => void> implements Ab
     if (!Object.is(prevState, nextState)) {
       // 浅比较
       this.state = typeof nextState !== 'object' ? nextState : Object.assign({}, this.state, nextState)
-      this.notify()
+      this.notify(this.state, prevState!)
     }
   }
 
   // 通知更新
-  notify() {
-    this.listeners.forEach((listener) => listener())
+  notify(state: T, prevState: T) {
+    this.listeners.forEach((listener) => listener(state, prevState))
   }
 }

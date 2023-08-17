@@ -1,5 +1,7 @@
 # @cmkk/relux
 
+Simple react state-management lib, inspired by zustand.
+
 ## installation
 
 ```shell
@@ -20,20 +22,19 @@ const store = createStore({
 
 export const useStore = store.hook
 
-export const addCount = (step: number) => {
+export const addCount = async (step: number) => {
+  await new Promise((resolve) => {
+    setTimeout(resolve, 2000)
+  })
   store.setState((state) => ({
-    ...state,
     count: state.count + step,
   }))
 }
 
 export const setLoading = (flag: boolean) => {
-  store.setState((state) => {
-    return {
-      ...state,
-      loading: flag,
-    }
-  })
+  store.setState(() => ({
+    loading: flag,
+  }))
 }
 
 // 
@@ -58,15 +59,14 @@ function App() {
     <>
       <h1>store count: {loading ? 'loading...' : count}</h1>
       <Button
-        onClick={() => {
+        loading={loading}
+        onClick={async () => {
           setLoading(true)
-          setTimeout(() => {
-            addCount(1)
-            setLoading(false)
-          }, 1000)
+          await addCount(2)
+          setLoading(false)
         }}
       >
-        increase
+        increase async
       </Button>
     </>
   )

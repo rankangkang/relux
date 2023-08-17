@@ -34,15 +34,14 @@ function App() {
       </Button>
       <h1>store count: {loading ? 'loading...' : count}</h1>
       <Button
-        onClick={() => {
+        loading={loading}
+        onClick={async () => {
           setLoading(true)
-          setTimeout(() => {
-            addCount(2)
-            setLoading(false)
-          }, 1000)
+          await addCount(2)
+          setLoading(false)
         }}
       >
-        增加2
+        异步增加
       </Button>
     </>
   )

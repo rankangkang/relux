@@ -7,10 +7,10 @@ import { AbstractObservableStore, ObservableStore } from './observable'
 //   store: AbstractObservableStore<T, any>
 // ) => R
 
-export function useStore(
-  store: AbstractObservableStore<any, any>,
-  selector?: any,
-  equalityFn?: any
+function useStore<T, U>(
+  store: AbstractObservableStore<T>,
+  selector?: (state: T) => U,
+  equalityFn?: (a: U, b: U) => boolean
 ) {
   if (!selector) {
     selector = (state: any) => state
@@ -26,7 +26,7 @@ export function useStore(
   return slice
 }
 
-export type UseBoundStore<T> = {
+type UseBoundStore<T> = {
   (): Readonly<T>
   <U>(selector: (state: T) => U): U
   <U>(
@@ -35,18 +35,13 @@ export type UseBoundStore<T> = {
   ): U
 }
 
-export type ReluxStore<T> = AbstractObservableStore<T, any> & { hook: UseBoundStore<T> }
+export type Store<T> = AbstractObservableStore<T> & { hook: UseBoundStore<T> }
 
-// export type StoreCreator = {
-//   <T extends Record<string, any>>(initialize: T): ReluxStore<T>
-//   <T extends Record<string, any>>(initialize: () => T): ReluxStore<T>
-// }
-
-export function createStore<T extends Object>(initialize: (() => T) | T ): ReluxStore<T> {
+export function createStore<T extends Object>(initialize: (() => T) | T ): Store<T> {
   const initialState = typeof initialize === 'function' ? initialize() : initialize
   const store = new ObservableStore<T>(initialState)
 
-  const useBoundStore = (selector: any, equalityFn: any) => useStore(store, selector, equalityFn)
+  const useBoundStore = ((selector, equalityFn) => useStore<T, any>(store, selector, equalityFn)) as UseBoundStore<T>
   Object.assign(store, { hook: useBoundStore })
 
   return store as any
