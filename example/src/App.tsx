@@ -4,7 +4,7 @@ import { Button } from 'antd'
 
 import { useCounterStore, useCounterDispatch } from './store'
 
-import { useStore, addCount, setLoading } from './relux'
+import { useStore } from './relux'
 
 function App() {
   const counter = useCounterStore()
@@ -12,6 +12,8 @@ function App() {
 
   const count = useStore((state) => state.count)
   const loading = useStore((state) => state.loading)
+  const addCount = useStore(state => state.addCount)
+  const setLoading = useStore(state => state.setLoading)
 
   return (
     <>
@@ -37,7 +39,7 @@ function App() {
         onClick={() => {
           setLoading(true)
           setTimeout(() => {
-            addCount(2)
+            addCount()
             setLoading(false)
           }, 1000)
         }}

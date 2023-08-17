@@ -1,24 +1,29 @@
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector'
-import { AbstractObservableStore, ObservableStore } from './observable'
+import { create, CreateState, StoreApi } from './core'
 
-// export type StateCreator<T, R = any> = (
-//   set: AbstractObservableStore<T, any>['setState'],
-//   get: AbstractObservableStore<T, any>['getState'],
-//   store: AbstractObservableStore<T, any>
-// ) => R
+export type UseBoundStore<T> = {
+  (): Readonly<T>
+  <U>(selector: (state: T) => U): U
+  <U>(selector: (state: T) => U, equalityFn: (a: U, b: U) => boolean): U
+}
 
-export function useStore(
-  store: AbstractObservableStore<any, any>,
-  selector?: any,
-  equalityFn?: any
+export type Store<T> = StoreApi<T> & {
+  hook: UseBoundStore<T>
+}
+
+export function useStore<T, U>(
+  storeApi: StoreApi<T>,
+  selector?: (state: T) => U,
+  equalityFn?: (a: U, b: U) => boolean
 ) {
   if (!selector) {
-    selector = (state: any) => state
+    selector = (state: T) => state as unknown as U
   }
+
   const slice = useSyncExternalStoreWithSelector(
-    store.subscribe.bind(store) as any,
-    store.getState.bind(store),
-    store.getState.bind(store),
+    storeApi.subscribe,
+    storeApi.getState,
+    storeApi.getState,
     selector,
     equalityFn
   )
@@ -26,28 +31,9 @@ export function useStore(
   return slice
 }
 
-export type UseBoundStore<T> = {
-  (): Readonly<T>
-  <U>(selector: (state: T) => U): U
-  <U>(
-    selector: (state: T) => U,
-    equalityFn: (a: U, b: U) => boolean
-  ): U
-}
-
-export type ReluxStore<T> = AbstractObservableStore<T, any> & { hook: UseBoundStore<T> }
-
-// export type StoreCreator = {
-//   <T extends Record<string, any>>(initialize: T): ReluxStore<T>
-//   <T extends Record<string, any>>(initialize: () => T): ReluxStore<T>
-// }
-
-export function createStore<T extends Object>(initialize: (() => T) | T ): ReluxStore<T> {
-  const initialState = typeof initialize === 'function' ? initialize() : initialize
-  const store = new ObservableStore<T>(initialState)
-
-  const useBoundStore = (selector: any, equalityFn: any) => useStore(store, selector, equalityFn)
-  Object.assign(store, { hook: useBoundStore })
-
-  return store as any
+export function createStore<T>(createState: CreateState<T>): Store<T> {
+  const store = create<T>(createState)
+  const hook = ((selector, equalityFn) => useStore<T, any>(store, selector, equalityFn)) as UseBoundStore<T>
+  Object.assign(store, { hook })
+  return store as Store<T>
 }
