@@ -1,5 +1,6 @@
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector'
 import { AbstractObservableStore, ObservableStore } from './observable'
+import { type } from 'os'
 
 // export type StateCreator<T, R = any> = (
 //   set: AbstractObservableStore<T, any>['setState'],
@@ -29,19 +30,30 @@ function useStore<T, U>(
 type UseBoundStore<T> = {
   (): Readonly<T>
   <U>(selector: (state: T) => U): U
-  <U>(
-    selector: (state: T) => U,
-    equalityFn: (a: U, b: U) => boolean
-  ): U
+  <U>(selector: (state: T) => U, equalityFn: (a: U, b: U) => boolean): U
 }
 
 export type Store<T> = AbstractObservableStore<T> & { hook: UseBoundStore<T> }
 
-export function createStore<T extends Object>(initialize: (() => T) | T ): Store<T> {
+type ValidState<T> = T extends Array<any> ? never
+  : T extends Map<any, any> ? never
+  : T extends Set<any> ? never
+  : T extends (Symbol | symbol) ? never
+  : T extends (Function) ? never
+  : T
+
+type BaseState = Record<string, any>
+
+// 重载
+export function createStore<T extends BaseState>(initialize: ValidState<T>): Store<ValidState<T>>
+export function createStore<T extends BaseState>(initialize: () => ValidState<T>): Store<ValidState<T>>
+
+export function createStore<T extends BaseState>(initialize: any): Store<ValidState<T>> {
   const initialState = typeof initialize === 'function' ? initialize() : initialize
   const store = new ObservableStore<T>(initialState)
 
-  const useBoundStore = ((selector, equalityFn) => useStore<T, any>(store, selector, equalityFn)) as UseBoundStore<T>
+  const useBoundStore = ((selector, equalityFn) =>
+    useStore<T, any>(store, selector, equalityFn)) as UseBoundStore<T>
   Object.assign(store, { hook: useBoundStore })
 
   return store as any
