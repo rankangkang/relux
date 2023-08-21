@@ -1,12 +1,5 @@
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector'
 import { AbstractObservableStore, ObservableStore } from './observable'
-import { type } from 'os'
-
-// export type StateCreator<T, R = any> = (
-//   set: AbstractObservableStore<T, any>['setState'],
-//   get: AbstractObservableStore<T, any>['getState'],
-//   store: AbstractObservableStore<T, any>
-// ) => R
 
 function useStore<T, U>(
   store: AbstractObservableStore<T>,
