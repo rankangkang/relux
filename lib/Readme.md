@@ -43,18 +43,17 @@ export const setLoading = (flag: boolean) => {
 app.ts
 
 ```ts
-import reactLogo from './assets/react.svg'
-import './App.css'
 import { Button } from 'antd'
 
-import { useCounterStore, useCounterDispatch } from './store'
-
-import { useStore, addCount, setLoading } from './relux'
+import { useStore, addCount, setLoading } from './store'
 
 function App() {
+  // ✅ good, use selector to avoid unnecessary rendering
   const count = useStore((state) => state.count)
   const loading = useStore((state) => state.loading)
 
+  // ❌ bad, unnecessary rendering cannot be skipped
+  // const { count, loading } = useState()
   return (
     <>
       <h1>store count: {loading ? 'loading...' : count}</h1>

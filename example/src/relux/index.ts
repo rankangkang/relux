@@ -3,7 +3,10 @@ import { createStore } from '@cmkk/relux'
 const store = createStore({
   count: 0,
   loading: false,
+  extra: false
 })
+
+export type CounterState = ReturnType<typeof store.getState>;
 
 export const useStore = store.hook
 
@@ -20,4 +23,8 @@ export const setLoading = (flag: boolean) => {
   store.setState(() => ({
     loading: flag,
   }))
+}
+
+export const setExtra = () => {
+  store.setState((state) => ({ extra: !state.extra }))
 }
